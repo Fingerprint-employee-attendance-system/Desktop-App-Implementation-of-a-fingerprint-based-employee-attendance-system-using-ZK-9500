@@ -9,16 +9,19 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Time;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -26,11 +29,25 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.zkteco.biometric.FingerprintSensorErrorCode;
 import com.zkteco.biometric.FingerprintSensorEx;
 
-public class App extends JFrame {
 
+
+public class App extends JFrame {
+	
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	JButton btnOpen = null;
@@ -104,8 +121,13 @@ public class App extends JFrame {
 				}
 			}
 		});
+		
 	}
 
+	
+	 
+
+	    
 	/**
 	 * Create the frame.
 	 */
@@ -131,7 +153,10 @@ public class App extends JFrame {
 		// File("C:/Users/user.DESKTOP-A9VSLE1/eclipseWorkSpace2/WindowBuilder/src/main/fingerprint.jpg"));
 		// // Provide the correct path
 
+		
+		
 		setContentPane(contentPane);
+		
 	}
 
 	public void launchFrame() {
@@ -147,6 +172,9 @@ public class App extends JFrame {
 		usernameTextField.setBounds(30, 110 + nRsize, 140, 30);
 		this.add(usernameTextField);
 
+		
+		
+        
 		btnEnroll = new JButton("Enroll");
 		this.add(btnEnroll);
 
@@ -181,13 +209,6 @@ public class App extends JFrame {
 		this.add(deleteUserBtn);
 		deleteUserBtn.setBounds(30, 460 + nRsize, 140, 30);
 
-		// radioANSI.setBounds(30, 360 + nRsize, 60, 30);
-
-		// radioISO.setBounds(120, 360 + nRsize, 60, 30);
-
-		// radioZK.setBounds(210, 360 + nRsize, 60, 30);
-
-		// For End
 
 		btnImg = new JButton();
 		btnImg.setBounds(200, 30, 288, 375);
@@ -203,6 +224,11 @@ public class App extends JFrame {
 		
 		textArea.setSelectedTextColor(Color.RED);
 
+		
+		
+		 
+        
+        
 		// this.setSize(850, 620);
 		this.setSize(1300, 700);
 		this.setLocationRelativeTo(null);
@@ -210,6 +236,12 @@ public class App extends JFrame {
 		this.setTitle("fingerprint attendance");
 		this.setResizable(false);
 
+		
+		
+		 
+	        
+	        
+	        
 		btnOpen.addActionListener(new ActionListener() {
 
 			@Override
@@ -272,7 +304,9 @@ public class App extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// generateRaport();
-
+				
+					 generatePDFAndSave();
+				
 			}
 		});
 
@@ -776,5 +810,103 @@ public class App extends JFrame {
 			//	}
 		//	}
 		}
+	}
+ 
+
+	public void generatePDFAndSave() {
+	    Document document = new Document(PageSize.A4);
+	    try {
+	        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	        PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+	        document.open();
+	        
+	        Font algeriaFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.BLACK);
+	        Paragraph algeriaHeading = new Paragraph("République démocratique populaire d'Algérie", algeriaFont);
+	        algeriaHeading.setAlignment(Element.ALIGN_CENTER);
+	        document.add(algeriaHeading);
+	        
+	        Paragraph ministryHeading = new Paragraph("Ministère de l'Énergie et des Mines", algeriaFont);
+	        ministryHeading.setAlignment(Element.ALIGN_CENTER);
+	        document.add(ministryHeading);
+	        
+	        Paragraph sonelgazHeading = new Paragraph("Direction générale de Sonelgaz de Souk Ahras", algeriaFont);
+	        sonelgazHeading.setAlignment(Element.ALIGN_CENTER);
+	        document.add(sonelgazHeading);
+	        
+	        Paragraph space1 = new Paragraph("\n");
+	        document.add(space1);
+	        
+	        Font headingFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, BaseColor.BLACK);
+	        Paragraph heading = new Paragraph("Feuille de pointage des employés", headingFont);
+	        heading.setAlignment(Element.ALIGN_CENTER);
+	        document.add(heading);
+
+	        Font companyNameFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
+	        Paragraph companyName = new Paragraph("Gestion générale de Sonelgaz", companyNameFont);
+	        companyName.setAlignment(Element.ALIGN_LEFT);
+	        document.add(companyName);
+
+	        Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
+	        Paragraph date = new Paragraph("Date: " + LocalDate.now(), dateFont);
+	        date.setAlignment(Element.ALIGN_RIGHT);
+	        document.add(date);
+	        
+	        Paragraph space = new Paragraph("\n");
+	        document.add(space);
+	        
+	        PdfPTable table = new PdfPTable(4);
+	        table.setWidthPercentage(100);
+
+	        Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK);
+	        PdfPCell cell;
+	       
+	        cell = new PdfPCell(new Phrase("Nom complet", headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(cell);
+	        cell = new PdfPCell(new Phrase("Heure d'arrivée", headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(cell);
+	        cell = new PdfPCell(new Phrase("Heure de départ", headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(cell);
+	        cell = new PdfPCell(new Phrase("Autres notes", headerFont));
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(cell);
+	        
+	        // Populate the table with employee data
+            for (Employee employee : users.GetAllUsers()) {
+                String checkIn = employee.getCheckIn().toString() ;
+                String checkOut = employee.getCheckOut().toString() ;
+
+                
+                table.addCell(employee.getUserName());
+                table.addCell(checkIn);
+                table.addCell(checkOut);
+                table.addCell(" ");
+            }
+
+	        document.add(table);
+
+	        Font signatureFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
+	        Paragraph signature = new Paragraph("Signature: ___________________________", signatureFont);
+	        signature.setAlignment(Element.ALIGN_RIGHT);
+	        document.add(signature);
+
+	        document.close();
+
+	        JFileChooser fileChooser = new JFileChooser();
+	        fileChooser.setDialogTitle("Save PDF File");
+	        int userSelection = fileChooser.showSaveDialog(null);
+	        if (userSelection == JFileChooser.APPROVE_OPTION) {
+	            String filePath = fileChooser.getSelectedFile().getAbsolutePath() + ".pdf";
+	            FileOutputStream fos = new FileOutputStream(filePath);
+	            fos.write(outputStream.toByteArray());
+	            fos.close();
+	            JOptionPane.showMessageDialog(null, "PDF file saved successfully at: " + filePath);
+	        }
+	    } catch (IOException | DocumentException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 }
