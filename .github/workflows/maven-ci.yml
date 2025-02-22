@@ -21,11 +21,12 @@ jobs:
           distribution: 'temurin'
           cache: maven  # Enables automatic caching for Maven dependencies
 
-      - name: Print Maven Repository Path
+      - name: Debug Cache Path
         run: |
-          echo "Local Maven Repository: $(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)"
+          echo "Maven Local Repository Path:"
+          mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout
 
-      - name: Cache Maven Dependencies
+      - name: Manually Cache Maven Dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -34,7 +35,7 @@ jobs:
             maven-${{ runner.os }}-
             maven-
 
-      - name: Force Maven to Download Dependencies
+      - name: Force Download Dependencies
         run: mvn dependency:go-offline --batch-mode
 
       - name: Build with Maven
