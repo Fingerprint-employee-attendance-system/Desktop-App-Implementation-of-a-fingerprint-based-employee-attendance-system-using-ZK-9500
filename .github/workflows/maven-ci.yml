@@ -19,13 +19,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven  # Enables caching for Maven dependencies
+          cache: maven  # Enables automatic caching for Maven dependencies
 
-      - name: Verify Maven Repository Path
-        run: echo "Maven Repository is located at $(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)"
-
-      - name: Force Maven to Download Dependencies
-        run: mvn dependency:go-offline
+      - name: Print Maven Repository Path
+        run: |
+          echo "Local Maven Repository: $(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)"
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v4
@@ -35,6 +33,9 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}-
             maven-
+
+      - name: Force Maven to Download Dependencies
+        run: mvn dependency:go-offline --batch-mode
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
@@ -56,6 +57,3 @@ jobs:
         with:
           name: spotbugs-report
           path: target/spotbugsXml.xml
-
-      - name: Verify Cached Dependencies
-        run: ls -la ~/.m2/repository
